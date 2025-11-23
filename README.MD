@@ -61,19 +61,24 @@ TPs de TI/
 │   ├── img1.png  # Grayscale image
 │   └── img2.png  # Color/binary image
 ├── Chap1/
-│   ├── tp1_*.py  # Scripts for Chapter 1
-│   └── outputs/  # Output images for Chap1
+│   ├── README.MD  # Detailed description of Chapter 1
+│   ├── tp1_*.py   # Scripts for Chapter 1
+│   └── outputs/   # Output images for Chap1
 ├── Chap2/
+│   ├── README.MD
 │   ├── tp2_*.py
 │   └── outputs/
 ├── ...
 ├── Chap7/
+│   ├── README.MD
 │   ├── tp7_*.py
 │   └── outputs/
 ├── requirements.txt  # List of dependencies
-├── README.MD         # This file
+├── README.MD         # This file (main overview)
 └── notes.txt         # Additional notes
 ```
+
+Each chapter folder contains a `README.MD` with a focused description of the chapter's topics, objectives, and a list of TPs with brief explanations.
 
 ## Detailed Chapters and TPs
 
