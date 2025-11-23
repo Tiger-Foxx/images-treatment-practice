@@ -1,5 +1,5 @@
 """
-Gamma correction.
+Global histogram equalization.
 """
 import numpy as np
 from PIL import Image
@@ -7,10 +7,18 @@ from PIL import Image
 img = Image.open('inputs/img1.png')
 img_array = np.array(img)
 H, W = img_array.shape
-gamma = 2.2
-corrected = np.zeros((H, W), dtype=np.uint8)
+hist = np.zeros(256, dtype=int)
 for i in range(H):
     for j in range(W):
-        I = img_array[i, j]
-        corrected[i, j] = int(255 * ((I / 255) ** (1 / gamma)))
-Image.fromarray(corrected).save('Chap2/outputs/output_tp2_gamma_correction.png')
+        hist[img_array[i, j]] += 1
+total = H * W
+hn = hist / total
+CDF = np.zeros(256)
+CDF[0] = hn[0]
+for k in range(1, 256):
+    CDF[k] = CDF[k-1] + hn[k]
+equalized = np.zeros((H, W), dtype=np.uint8)
+for i in range(H):
+    for j in range(W):
+        equalized[i, j] = int(CDF[img_array[i, j]] * 255)
+Image.fromarray(equalized).save('Chap2/outputs/output_tp2_hist_equal.png')
