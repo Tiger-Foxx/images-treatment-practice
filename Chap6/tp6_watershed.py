@@ -4,7 +4,7 @@ Watershed segmentation.
 import numpy as np
 from PIL import Image
 
-img = Image.open('inputs/img1.png')
+img = Image.open('inputs/img3.png')
 img_array = np.array(img)
 H, W = img_array.shape
 gradient = np.zeros((H, W))
