@@ -38,7 +38,7 @@
 }
 
 \title{Guide de Test et Documentation des Travaux Pratiques \\ Traitement d'Images}
-\author{Donfack Pascal}
+\author{Donfack Pascal \\ \textbf{Classe : M2-GI}}
 \date{\today}
 
 \begin{document}
@@ -79,50 +79,92 @@ python ChapX/tpX_nom_du_fichier.py
 \subsection{Chapitre 1 - Fondamentaux}
 Ce chapitre couvre les bases : conversion en niveaux de gris, échantillonnage spatial, quantification et profils d'intensité.
 \begin{itemize}
-    \item \texttt{tp1_rgb_to_gray.py} : Conversion manuelle RGB vers Gris.
-    \item \texttt{tp1_gray_quantization.py} : Réduction du nombre de bits.
-    \item \texttt{tp1_spatial_sampling.py} : Réduction de la résolution spatiale.
+    \item \texttt{tp1_rgb_to_gray.py} : Conversion pondérée manuelle RGB vers Niveaux de Gris.
+    \item \texttt{tp1_gray_quantization.py} : Réduction du nombre de niveaux d'intensité (quantification sur K bits).
+    \item \texttt{tp1_spatial_sampling.py} : Réduction de la résolution spatiale par sous-échantillonnage.
+    \item \texttt{tp1_intensity_profile.py} : Extraction et tracé de la ligne d'intensité au milieu de l'image.
 \end{itemize}
 
 \subsection{Chapitre 2 - Traitements Ponctuels}
 Calcul d'histogrammes, étirement de contraste, correction gamma et égalisation. Les scripts affichent systématiquement l'histogramme avant/après.
 \begin{itemize}
-    \item \texttt{tp2_hist_equal.py} : Égalisation globale d'histogramme.
-    \item \texttt{tp2_local_hist_equal.py} : Égalisation adaptative locale (fenêtre glissante).
+    \item \texttt{tp2_histogram.py} : Calcul et affichage de l'histogramme de fréquences.
+    \item \texttt{tp2_stats.py} : Calcul des statistiques descriptives (Moyenne, Écart-type, Min, Max).
+    \item \texttt{tp2_linear_stretch.py} : Étirement linéaire du contraste de [min, max] vers [0, 255].
+    \item \texttt{tp2_linear_saturation.py} : Étirement avec seuils de saturation pour éliminer les valeurs aberrantes.
+    \item \texttt{tp2_piecewise_linear.py} : Transformation par morceaux pour un contrôle fin sur des plages d'intensité.
+    \item \texttt{tp2_gamma_correction.py} : Correction de gamma via une table de correspondance (LUT).
+    \item \texttt{tp2_hist_equal.py} : Égalisation globale basée sur la fonction de répartition (CDF).
+    \item \texttt{tp2_local_hist_equal.py} : Égalisation adaptative locale (fenêtre 15x15).
+    \item \texttt{tp2_arithmetic_ops.py} : Opérations de fusion, addition et soustraction d'images.
+    \item \texttt{tp2_logical_ops.py} : Opérations booléennes (AND, OR) sur images binaires.
+    \item \texttt{tp2_interp_nearest.py} : Zoom par plus proche voisin.
+    \item \texttt{tp2_interp_bilinear.py} : Zoom par interpolation bilinéaire (plus lisse).
+    \item \texttt{tp2_interp_bicubic.py} : Zoom par interpolation bicubique (spline de Catmull-Rom).
 \end{itemize}
 
 \subsection{Chapitre 3 - Filtrage de Convolution}
 Implémentation d'un moteur de convolution 2D manuel.
 \begin{itemize}
-    \item \texttt{tp3_gaussian_filter.py} : Lissage gaussien.
-    \item \texttt{tp3_median_filter.py} : Filtre non-linéaire pour bruit impulsionnel.
+    \item \texttt{tp3_convolution_2d.py} : Moteur de convolution général (utilisé pour le Sharpening).
+    \item \texttt{tp3_mean_filter.py} : Filtrage moyenneur pour le lissage uniforme.
+    \item \texttt{tp3_gaussian_filter.py} : Flou gaussien (lissage préservant mieux les structures).
+    \item \texttt{tp3_median_filter.py} : Filtrage statistique pour supprimer le bruit impulsionnel (Salt \& Pepper).
 \end{itemize}
 
 \subsection{Chapitre 4 - Domaine Fréquentiel}
 Transformée de Fourier Discrète (DFT). Pour des raisons de performance, la DFT 2D est calculée sur un patch de 64x64.
 \begin{itemize}
-    \item \texttt{tp4_dft_2d.py} : Visualisation du spectre de magnitude (logarithmique).
+    \item \texttt{tp4_dft_1d.py} : Calcul de la transformée de Fourier sur un signal sonore/temporel.
+    \item \texttt{tp4_dft_2d.py} : Analyse spectrale sur un patch d'image (log-magnitude).
+    \item \texttt{tp4_fft_shift.py} : Centrage des basses fréquences au centre du spectre.
+    \item \texttt{tp4_lowpass_freq.py} : Lissage par suppression des hautes fréquences dans le domaine spectral.
+    \item \texttt{tp4_highpass_freq.py} : Extraction de détails par suppression des basses fréquences.
+    \item \texttt{tp4_notch_filter.py} : Rejet de bande pour éliminer des bruits périodiques ciblés.
+    \item \texttt{tp4_enhance_highpass.py} : Accentuation des détails (High-boost filtering).
 \end{itemize}
 
 \subsection{Chapitre 5 - Détection de Contours}
 Opérateurs Sobel, Prewitt, et Laplacien.
 \begin{itemize}
-    \item \texttt{tp5_sobel.py} : Affiche les gradients Gx, Gy et la magnitude finale.
+    \item \texttt{tp5_gradient_finite_diff.py} : Calcul des dérivées premières simples (différences finies).
+    \item \texttt{tp5_sobel.py} : Détection de contours par opérateurs de Sobel (plus robuste).
+    \item \texttt{tp5_prewitt.py} : Variante de Sobel utilisant des poids uniformes.
+    \item \texttt{tp5_roberts.py} : Opérateur de gradient croisé (2x2).
+    \item \texttt{tp5_laplacian.py} : Détection par dérivées secondes (Laplacien).
+    \item \texttt{tp5_edge_threshold.py} : Binarisation des contours par seuillage du gradient.
+    \item \texttt{tp5_non_max_suppression.py} : Affinement des contours par suppression des non-maxima.
+    \item \texttt{tp5_hysteresis.py} : Liaison des contours faibles par double seuillage (Canny-style).
 \end{itemize}
 
 \subsection{Chapitre 6 - Segmentation}
 Seuillage d'Otsu, croissance de régions et K-means.
 \begin{itemize}
-    \item \texttt{tp6_otsu_threshold.py} : Calcule le seuil optimal automatiquement.
+    \item \texttt{tp6_simple_threshold.py} : Binarisation globale à seuil fixe.
+    \item \texttt{tp6_otsu_threshold.py} : Calcul automatique du seuil optimal par maximisation de la variance inter-classe.
+    \item \texttt{tp6_region_growing.py} : Segmentation par agrégation de pixels depuis un germe (seed).
+    \item \texttt{tp6_connected_components_labeling.py} : Identification et coloration des objets distincts.
+    \item \texttt{tp6_kmeans_segmentation.py} : Segmentation par clustering de couleurs (K-means).
+    \item \texttt{tp6_watershed.py} : Segmentation par ligne de partage des eaux sur le gradient.
 \end{itemize}
 
 \subsection{Chapitre 7 - Morphologie Mathématique}
 Opérations sur images binaires (Érosion, Dilatation, Ouverture, Fermeture).
 \begin{itemize}
-    \item \texttt{tp7_freeman_chain_code.py} : Suivi de contour par code de Freeman.
+    \item \texttt{tp7_connected_components_labeling.py} : Étiquetage binaire pour l'analyse d'objets.
+    \item \texttt{tp7_freeman_chain_code.py} : Encodage compact des contours d'un objet.
+    \item \texttt{tp7_morph_erosion.py} : Érosion (réduction des formes, suppression du bruit fin).
+    \item \texttt{tp7_morph_dilation.py} : Dilatation (expansion des formes, comblement de trous).
+    \item \texttt{tp7_morph_opening.py} : Érosion suivie d'une dilatation (nettoyage).
+    \item \texttt{tp7_morph_closing.py} : Dilatation suivie d'une érosion (fermeture de cavités).
+    \item \texttt{tp7_morph_gradient.py} : Extraction des contours par différence entre dilatation et érosion.
 \end{itemize}
 
 \section{Conclusion}
-Tous les scripts sont conçus pour être simples à lire et à tester. La visualisation directe permet de valider instantanément la correction de la logique implémentée.
+Tous les scripts sont conçus pour être simples à lire et à tester. La visualisation directe permet de valider instantanément la correction de la logique implémentée. Ce projet démontre l'efficacité des méthodes fondamentales de traitement d'images sans recours à des bibliothèques externes complexes.
+
+\section*{Annexe : Répertoire du Projet}
+L'intégralité du code source, des images de test et des résultats est disponible sur GitHub à l'adresse suivante : \\
+\url{https://github.com/Tiger-Foxx/images-treatment-practice.git}
 
 \end{document}
