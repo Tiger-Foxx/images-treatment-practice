@@ -1,14 +1,21 @@
 """
-Non-max suppression.
+Non-maximum suppression for edge thinning.
 """
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
+import os
+
+# Create outputs directory if it doesn't exist
+output_dir = 'Chap5/outputs'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
 def convolve(img, kernel):
     H, W = img.shape
     kH, kW = kernel.shape
     r = kH // 2
-    padded = np.pad(img, r, mode='constant', constant_values=0)
+    padded = np.pad(img, r, mode='reflect')
     result = np.zeros((H, W), dtype=np.float32)
     for i in range(H):
         for j in range(W):
@@ -19,30 +26,81 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-img = Image.open('inputs/img1.png')
-img_array = np.array(img)
+# Load image as grayscale
+img = Image.open('inputs/img1.png').convert('L')
+img_array = np.array(img).astype(np.float32)
 H, W = img_array.shape
-kx = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
-ky = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+
+# Sobel Kernels
+kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+ky = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
+
+# Compute gradients
 dx = convolve(img_array, kx)
 dy = convolve(img_array, ky)
 mag = np.sqrt(dx**2 + dy**2)
-theta = np.arctan2(dy, dx)
+theta = np.arctan2(ky, kx) # direction
+
 suppressed = np.zeros((H, W), dtype=np.float32)
+angle = np.arctan2(dy, dx) * 180.0 / np.pi
+angle[angle < 0] += 180
+
+# Manual Non-max suppression
 for i in range(1, H-1):
     for j in range(1, W-1):
-        angle = theta[i, j] * 180 / np.pi
-        if (angle < 22.5 and angle >= -22.5) or (angle >= 157.5 or angle < -157.5):
-            if mag[i, j] >= mag[i, j-1] and mag[i, j] >= mag[i, j+1]:
-                suppressed[i, j] = mag[i, j]
-        elif (angle >= 22.5 and angle < 67.5) or (angle < -112.5 and angle >= -157.5):
-            if mag[i, j] >= mag[i-1, j+1] and mag[i, j] >= mag[i+1, j-1]:
-                suppressed[i, j] = mag[i, j]
-        elif (angle >= 67.5 and angle < 112.5) or (angle < -67.5 and angle >= -112.5):
-            if mag[i, j] >= mag[i-1, j] and mag[i, j] >= mag[i+1, j]:
-                suppressed[i, j] = mag[i, j]
+        q = 255
+        r = 255
+        
+        # Angle 0 degrees (horizontal)
+        if (0 <= angle[i,j] < 22.5) or (157.5 <= angle[i,j] <= 180):
+            q = mag[i, j+1]
+            r = mag[i, j-1]
+        # Angle 45 degrees (diagonal)
+        elif (22.5 <= angle[i,j] < 67.5):
+            q = mag[i+1, j-1]
+            r = mag[i-1, j+1]
+        # Angle 90 degrees (vertical)
+        elif (67.5 <= angle[i,j] < 112.5):
+            q = mag[i+1, j]
+            r = mag[i-1, j]
+        # Angle 135 degrees (diagonal)
+        elif (112.5 <= angle[i,j] < 157.5):
+            q = mag[i-1, j-1]
+            r = mag[i+1, j+1]
+
+        if (mag[i,j] >= q) and (mag[i,j] >= r):
+            suppressed[i,j] = mag[i,j]
         else:
-            if mag[i, j] >= mag[i-1, j-1] and mag[i, j] >= mag[i+1, j+1]:
-                suppressed[i, j] = mag[i, j]
-suppressed_norm = (suppressed / suppressed.max() * 255).astype(np.uint8)
-Image.fromarray(suppressed_norm).save('Chap5/outputs/output_tp5_non_max_suppression.png')
+            suppressed[i,j] = 0
+
+# Normalization
+if suppressed.max() > 0:
+    suppressed_norm = (suppressed / suppressed.max() * 255).astype(np.uint8)
+else:
+    suppressed_norm = suppressed.astype(np.uint8)
+
+# Save result
+output_path = os.path.join(output_dir, 'output_tp5_non_max_suppression.png')
+Image.fromarray(suppressed_norm).save(output_path)
+
+# Visualization
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+plt.imshow(img_array, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(mag, cmap='magma')
+plt.title('Gradient Magnitude')
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(suppressed_norm, cmap='gray')
+plt.title('Non-Max Suppression (Thinned)')
+plt.axis('off')
+
+plt.suptitle('TP5: Non-Maximum Suppression')
+plt.tight_layout()
+plt.show()

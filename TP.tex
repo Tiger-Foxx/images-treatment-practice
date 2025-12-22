@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{color}
+
+\geometry{margin=2.5cm}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    language=Python,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\title{Guide de Test et Documentation des Travaux Pratiques \\ Traitement d'Images}
+\author{Donfack Pascal}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Ce document constitue le guide de test exhaustif pour les travaux pratiques (TP) de traitement d'images. Chaque algorithme a été implémenté avec une rigueur académique, privilégiant la manipulation \textbf{manuelle} des pixels (via des boucles imbriquées) au détriment des fonctions pré-établies des bibliothèques de haut niveau. Cette approche garantit une compréhension profonde des transformations matricielles appliquées aux images.
+
+Un aspect crucial de cette révision est l'intégration systématique de la \textbf{visualisation directe}. Chaque script génère désormais un canevas interactif (via Matplotlib) permettant de comparer instantanément l'image source et le résultat du traitement.
+
+\section{Architecture du Projet}
+La structure du projet respecte une organisation modulaire par type de traitement :
+\begin{itemize}
+    \item \textbf{inputs/} : Répertoire central des images de test (\texttt{img1.png} et \texttt{img2.png}).
+    \item \textbf{Chap1/ à Chap7/} : Dossiers thématiques regroupant les scripts Python (\texttt{.py}).
+    \item \textbf{outputs/} : Sous-répertoires au sein de chaque chapitre contenant les fichiers sauvegardés après exécution.
+\end{itemize}
+
+\section{Protocole de Test}
+Pour valider le fonctionnement d'un TP, l'utilisateur doit disposer d'un environnement Python configuré avec les bibliothèques suivantes : \texttt{numpy}, \texttt{pillow}, \texttt{matplotlib}.
+
+\subsection{Exécution}
+La commande type pour lancer un TP est la suivante :
+\begin{lstlisting}
+python ChapX/tpX_nom_du_fichier.py
+\end{lstlisting}
+
+À l'exécution, une interface graphique s'affiche. L'utilisateur peut ainsi observer :
+\begin{itemize}
+    \item L'image originale (souvent convertie en niveaux de gris pour le traitement).
+    \item Le résultat de l'algorithme (filtrage, segmentation, transformée, etc.).
+    \item Des aides visuelles (histogrammes de fréquence, spectres de magnitude, zones de croissance, etc.).
+\end{itemize}
+
+\section{Détail des Chapitres}
+
+\subsection{Chapitre 1 - Fondamentaux}
+Ce chapitre couvre les bases : conversion en niveaux de gris, échantillonnage spatial, quantification et profils d'intensité.
+\begin{itemize}
+    \item \texttt{tp1_rgb_to_gray.py} : Conversion manuelle RGB vers Gris.
+    \item \texttt{tp1_gray_quantization.py} : Réduction du nombre de bits.
+    \item \texttt{tp1_spatial_sampling.py} : Réduction de la résolution spatiale.
+\end{itemize}
+
+\subsection{Chapitre 2 - Traitements Ponctuels}
+Calcul d'histogrammes, étirement de contraste, correction gamma et égalisation. Les scripts affichent systématiquement l'histogramme avant/après.
+\begin{itemize}
+    \item \texttt{tp2_hist_equal.py} : Égalisation globale d'histogramme.
+    \item \texttt{tp2_local_hist_equal.py} : Égalisation adaptative locale (fenêtre glissante).
+\end{itemize}
+
+\subsection{Chapitre 3 - Filtrage de Convolution}
+Implémentation d'un moteur de convolution 2D manuel.
+\begin{itemize}
+    \item \texttt{tp3_gaussian_filter.py} : Lissage gaussien.
+    \item \texttt{tp3_median_filter.py} : Filtre non-linéaire pour bruit impulsionnel.
+\end{itemize}
+
+\subsection{Chapitre 4 - Domaine Fréquentiel}
+Transformée de Fourier Discrète (DFT). Pour des raisons de performance, la DFT 2D est calculée sur un patch de 64x64.
+\begin{itemize}
+    \item \texttt{tp4_dft_2d.py} : Visualisation du spectre de magnitude (logarithmique).
+\end{itemize}
+
+\subsection{Chapitre 5 - Détection de Contours}
+Opérateurs Sobel, Prewitt, et Laplacien.
+\begin{itemize}
+    \item \texttt{tp5_sobel.py} : Affiche les gradients Gx, Gy et la magnitude finale.
+\end{itemize}
+
+\subsection{Chapitre 6 - Segmentation}
+Seuillage d'Otsu, croissance de régions et K-means.
+\begin{itemize}
+    \item \texttt{tp6_otsu_threshold.py} : Calcule le seuil optimal automatiquement.
+\end{itemize}
+
+\subsection{Chapitre 7 - Morphologie Mathématique}
+Opérations sur images binaires (Érosion, Dilatation, Ouverture, Fermeture).
+\begin{itemize}
+    \item \texttt{tp7_freeman_chain_code.py} : Suivi de contour par code de Freeman.
+\end{itemize}
+
+\section{Conclusion}
+Tous les scripts sont conçus pour être simples à lire et à tester. La visualisation directe permet de valider instantanément la correction de la logique implémentée.
+
+\end{document}

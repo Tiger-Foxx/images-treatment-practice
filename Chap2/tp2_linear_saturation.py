@@ -1,22 +1,72 @@
 """
-Linear stretch with saturation.
+Linear contrast stretching with saturation (clipping).
 """
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
+import os
 
-img = Image.open('inputs/img1.png')
+# Create outputs directory if it doesn't exist
+output_dir = 'Chap2/outputs'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# Load image as grayscale
+img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
+
+# Saturation parameters
 Smin = 50
 Smax = 200
 stretched = np.zeros((H, W), dtype=np.uint8)
+
+# Pre-calculate LUT for visualization and application
+lut = np.zeros(256, dtype=np.uint8)
+for k in range(256):
+    if k < Smin:
+        lut[k] = 0
+    elif k > Smax:
+        lut[k] = 255
+    else:
+        # Scale between Smin and Smax to [0, 255]
+        lut[k] = int(255 * (k - Smin) / (Smax - Smin))
+
+# Manual application
 for i in range(H):
     for j in range(W):
-        I = img_array[i, j]
-        if I < Smin:
-            stretched[i, j] = 0
-        elif I > Smax:
-            stretched[i, j] = 255
-        else:
-            stretched[i, j] = int(255 * (I - Smin) / (Smax - Smin))
-Image.fromarray(stretched).save('Chap2/outputs/output_tp2_linear_saturation.png')
+        stretched[i, j] = lut[img_array[i, j]]
+
+# Save result
+output_path = os.path.join(output_dir, 'output_tp2_linear_saturation.png')
+Image.fromarray(stretched).save(output_path)
+
+# Visualization
+plt.figure(figsize=(15, 10))
+
+plt.subplot(2, 2, 1)
+plt.imshow(img_array, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(2, 2, 2)
+plt.imshow(stretched, cmap='gray')
+plt.title(f'Saturated Stretch [{Smin}, {Smax}]')
+plt.axis('off')
+
+plt.subplot(2, 2, 3)
+plt.plot(range(256), lut, color='red')
+plt.title('Transformation Function')
+plt.xlabel('Input Intensity')
+plt.ylabel('Output Intensity')
+plt.grid(True)
+
+plt.subplot(2, 2, 4)
+plt.hist(img_array.flatten(), bins=256, range=(0, 256), color='gray', alpha=0.5, label='Original')
+plt.hist(stretched.flatten(), bins=256, range=(0, 256), color='blue', alpha=0.5, label='Processed')
+plt.title('Histogram Comparison')
+plt.legend()
+
+plt.suptitle('TP2: Linear Stretch with Saturation')
+plt.tight_layout()
+plt.show()

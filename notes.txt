@@ -1,0 +1,243 @@
+# TP Traitement d'images - Implémentations manuelles
+
+Dossier courant :
+- inputs/img1.png (image en niveaux de gris pour la plupart des tests)
+- inputs/img2.png (image couleur ou binaire selon le TP)
+
+Tous les TPs doivent être implémentés en Python en manipulant les pixels manuellement (boucles for imbriquées sur les lignes et colonnes), sans utiliser de fonctions de haut niveau des librairies comme OpenCV ou scikit-image pour les opérations clés. Utiliser NumPy pour les tableaux (arrays), Matplotlib pour l'affichage, et PIL (Pillow) uniquement pour charger/sauvegarder les images. Les codes doivent être minimaux, fonctionnels, sans commentaires superflus ni emojis. Chaque fichier .py doit charger l'image spécifiée, appliquer l'algorithme, afficher ou sauvegarder le résultat (ex. output_tpX.png), et gérer les bords (padding zéro ou réplication).
+
+## Chapitre 1 - Introduction
+
+Contexte : Ce chapitre définit une image comme une matrice de valeurs (niveaux de gris 0-255), avec exemples de matrices de pixels. Les TPs visent à comprendre la représentation numérique des images et à manipuler les pixels de base pour la conversion, la quantification et l'échantillonnage, car ce sont les fondements du traitement d'images.
+
+TP1 - Conversion RGB vers niveaux de gris  
+Fichier : tp1_rgb_to_gray.py  
+Description : Convertir une image couleur en gris pour simplifier le traitement (réduire dimensions). Pourquoi : Les images grises sont plus simples pour les algos suivants. Comment : Charger image RGB comme array NumPy (H, W, 3), boucler sur chaque pixel (for i in range(H): for j in range(W):), calculer gris = (R + G + B)/3 ou 0.299*R + 0.587*G + 0.114*B, assigner à nouvelle array grise (H, W). Sauvegarder comme PNG. Utiliser inputs/img2.png (couleur).
+
+TP1 - Quantification des niveaux de gris  
+Fichier : tp1_gray_quantization.py  
+Description : Réduire le nombre de niveaux pour compresser ou simuler des codages bas-bits. Pourquoi : Montre l'impact sur la qualité d'image. Comment : Charger image grise (H, W), spécifier K bits (L = 2**K), boucler sur pixels, mapper I' = floor((I / 255.0) * (L-1)) * (255 // (L-1)), gérer arrondi. Sauvegarder. Tester K=2,4,6. Utiliser inputs/img1.png.
+
+TP1 - Échantillonnage spatial  
+Fichier : tp1_spatial_sampling.py  
+Description : Réduire la résolution pour compresser ou accélérer. Pourquoi : Illustre la perte d'information. Comment : Facteur N (ex. 2), créer new_H = H//N, new_W = W//N, boucler sur new_i, new_j, copier pixel de (new_i*N, new_j*N) sans interpolation. Gérer si dimensions non divisibles. Utiliser inputs/img1.png.
+
+TP1 - Profil d'intensité  
+Fichier : tp1_intensity_profile.py  
+Description : Extraire et plotter les valeurs le long d'une ligne pour analyser les variations. Pourquoi : Visualise les transitions (précurseur aux contours). Comment : Spécifier ligne y=fixed ou x=fixed, boucler sur la dimension variable, collecter list des valeurs I[x,y], plot avec plt.plot. Utiliser inputs/img1.png, ex. ligne horizontale milieu.
+
+## Chapitre 2 - Traitement de base
+
+Contexte : Ce chapitre couvre l'histogramme comme distribution des niveaux, et les transformations ponctuelles pour améliorer le contraste ou corriger. Les TPs implémentent ces transformations pour manipuler l'apparence sans voisinage, avec formules pour linéaire, gamma, égalisation.
+
+TP2 - Calcul de l'histogramme  
+Fichier : tp2_histogram.py  
+Description : Compter la distribution pour analyser la dynamique. Pourquoi : Base pour égalisation et stats. Comment : Initialiser array hist[256] = 0, boucler sur tous pixels, hist[I[i,j]] += 1. Plot bar avec plt.bar(range(256), hist). Utiliser inputs/img1.png.
+
+TP2 - Statistiques de l'image (luminance, contraste)  
+Fichier : tp2_stats.py  
+Description : Calculer mean, std, min, max pour quantifier qualité. Pourquoi : Évalue besoin d'amélioration. Comment : Boucler pour sum_I += I[i,j], count +=1, mean = sum_I / count; seconde boucle pour sum_var += (I[i,j] - mean)**2, std = sqrt(sum_var / count). Min/max via boucles. Utiliser inputs/img1.png.
+
+TP2 - Transformation linéaire pour amélioration contraste  
+Fichier : tp2_linear_stretch.py  
+Description : Étirer l'histo pour utiliser toute la dynamique [0,255]. Pourquoi : Améliore visibilité sur images sombres/claires. Comment : Trouver min/max via boucle, créer LUT[256] où LUT[k] = 255 * (k - min) / (max - min), puis boucler sur pixels I'[i,j] = LUT[I[i,j]]. Utiliser inputs/img1.png.
+
+TP2 - Transformation linéaire avec saturation  
+Fichier : tp2_linear_saturation.py  
+Description : Étirer mais saturer aux extrêmes. Pourquoi : Contrôle les outliers. Comment : Similaire à stretch, mais si I < Smin: 0, si I > Smax: 255, sinon scale entre. Param Smin, Smax. Boucler ou LUT. Formula: I' = min(max(255 * (I - min)/(max - min), 0), 255) mais avec sats. Utiliser inputs/img1.png.
+
+TP2 - Transformation linéaire par morceaux  
+Fichier : tp2_piecewise_linear.py  
+Description : Appliquer différentes pentes par segments. Pourquoi : Adaptation fine au contraste local. Comment : Définir points (ex. [0, Smin, S, Smax, 255]), interpoler linéairement entre (LUT précalculé), boucler pour appliquer. Exemple pour 3 segments. Utiliser inputs/img1.png.
+
+TP2 - Transformation non-linéaire (correction gamma)  
+Fichier : tp2_gamma_correction.py  
+Description : Corriger non-linéarités (écran/œil). Pourquoi : Restaure perception naturelle. Comment : I' = 255 * (I/255)**(1/gamma), boucler sur pixels, utiliser pow ou **. Gamma ex. 2.2. Utiliser inputs/img1.png.
+
+TP2 - Égalisation d'histogramme globale  
+Fichier : tp2_hist_equal.py  
+Description : Uniformiser la distribution pour meilleur contraste. Pourquoi : Optimal pour visibilité globale. Comment : Calculer hist comme TP2, hn[i] = hist[i]/total_pixels, CDF[0]=hn[0], for i=1 to 255: CDF[i]=CDF[i-1]+hn[i], I' = floor(CDF[I] * 255). Boucles pour tout. Utiliser inputs/img1.png.
+
+TP2 - Égalisation d'histogramme locale  
+Fichier : tp2_local_hist_equal.py  
+Description : Adapter par fenêtres pour contraste local. Pourquoi : Gère variations d'éclairage. Comment : Pour chaque pixel, extraire fenêtre NxN (ex.7), calculer hist/CDF local (boucles imbriquées), appliquer I' = CDF_local[I_center]*255. Gérer bords par padding. Utiliser inputs/img1.png.
+
+TP2 - Opérations logiques (ET, OU)  
+Fichier : tp2_logical_ops.py  
+Description : Combiner masques binaires. Pourquoi : Pour segmentation booléenne. Comment : Charger deux images binaires, boucler I_and[i,j] = 255 if I1[i,j]==255 and I2[i,j]==255 else 0; pareil pour OR. Utiliser inputs/img1.png et img2.png (seuiller si besoin).
+
+TP2 - Opérations arithmétiques (addition, soustraction, multiplication)  
+Fichier : tp2_arithmetic_ops.py  
+Description : Modifier intensités. Pourquoi : Fusion, masque, scaling. Comment : Pour add: I'[i,j] = min(I1[i,j] + I2[i,j], 255); sub: max(I1-I2,0); mult: min(I*ratio,255). Boucler, clip. Utiliser inputs/img1.png et img2.png ou constante.
+
+TP2 - Interpolation plus proche voisin  
+Fichier : tp2_interp_nearest.py  
+Description : Zoom simple. Pourquoi : Base pour redimensionnement. Comment : Facteur F>1, new_H=H*F, boucler new_i, new_j, orig_i = floor(new_i/F), copier I[orig_i, orig_j]. Utiliser inputs/img1.png.
+
+TP2 - Interpolation bilinéaire  
+Fichier : tp2_interp_bilinear.py  
+Description : Zoom lisse. Pourquoi : Moins aliasing. Comment : Pour chaque new_i,j, calculer dx= (new_i/F) - floor, dy pareil, valeur = (1-dx)(1-dy)*I00 + dx(1-dy)*I10 + (1-dx)dy*I01 + dx dy*I11 (4 voisins). Boucles. Gérer bords. Utiliser inputs/img1.png.
+
+TP2 - Interpolation bicubique  
+Fichier : tp2_interp_bicubic.py  
+Description : Zoom haute qualité. Pourquoi : Préserve détails. Comment : Utiliser formule cubique: pour 1D, cubic(a,b,c,d,x) = b + x*(c-b-a/3 +d/3 -0.5*x*(...) full formula online, apply row then col with 16 neighbors. Complex loops. Utiliser inputs/img1.png.
+
+## Chapitre 3 - Convolution
+
+Contexte : Introduit les transformations locales via convolution pour filtres. Les TPs implémentent la convolution manuelle et filtres spécifiques (mean, gaussian, median) pour lissage, réduction bruit, avec exemples de masques.
+
+TP3 - Implémentation générale de la convolution 2D  
+Fichier : tp3_convolution_2d.py  
+Description : Appliquer un noyau pour transformations locales. Pourquoi : Base pour tous filtres. Comment : Fonction convolve(img, kernel): pad img avec zeros (size kernel//2), for i in range(H): for j in range(W): sum = 0, for u in -r to r: for v in -r to r: sum += img_padded[i+u+r, j+v+r] * kernel[u+r,v+r], I'[i,j]=sum. Normaliser si besoin. Utiliser inputs/img1.png, ex. kernel identité.
+
+TP3 - Filtre moyenneur (mean filter)  
+Fichier : tp3_mean_filter.py  
+Description : Lisser pour réduire bruit. Pourquoi : Floute edges inutiles. Comment : Générer kernel NxN tous 1/N**2, appliquer via convolve ci-dessus. Tester N=3,5,7. Formula: I' = sum voisins / N**2. Utiliser inputs/img1.png.
+
+TP3 - Filtre gaussien  
+Fichier : tp3_gaussian_filter.py  
+Description : Meilleur lissage que mean. Pourquoi : Pondère plus le centre. Comment : Calculer kernel[u,v] = (1/(2*pi*sigma**2)) * exp(- (u**2 + v**2)/(2*sigma**2)), u,v de -r to r, normaliser sum(kernel)=1. Appliquer convolve. Sigma=1.0, N=5. Exemple matrice donnée pour sigma approx. Utiliser inputs/img1.png.
+
+TP3 - Filtre médian (non-linéaire)  
+Fichier : tp3_median_filter.py  
+Description : Réduire bruit impulsif (poivre/sel). Pourquoi : Préserve edges mieux que mean. Comment : Pour chaque pixel, collecter list des N**2 voisins (pad zeros), sort(list), median = list[mid], assigner. Tester N=3,5. Utiliser inputs/img2.png.
+
+## Chapitre 4 - Transformée de Fourier
+
+Contexte : Notions de fréquences, DFT pour analyse spectrale, filtrage fréquentiel. Mention de FFT mais implémenter DFT manuelle. TPs pour 1D/2D, shift, filtres passe-bas/haut/notch, rehaussement.
+
+TP4 - Transformée de Fourier discrète 1D (DFT)  
+Fichier : tp4_dft_1d.py  
+Description : Analyser fréquences en 1D. Pourquoi : Base pour 2D. Comment : Pour signal list f de len N, F[u] = sum_{k=0}^{N-1} f[k] * exp(-2j * pi * u * k / N), boucle for u, for k. IDFT pareil avec + et /N. Générer signal test sin + noise, plot magnitude |F|. Pas de NumPy fft.
+
+TP4 - Transformée de Fourier discrète 2D (DFT)  
+Fichier : tp4_dft_2d.py  
+Description : Spectre image. Pourquoi : Visualise fréquences. Comment : Appliquer DFT1D sur lignes, puis sur colonnes résultantes. Calculer mag = abs(F), log(1+mag) pour display. Pad à puissance 2: trouver next_pow2, pad zeros. Utiliser patch 64x64 de inputs/img1.png.
+
+TP4 - Inversion des quadrants (shift)  
+Fichier : tp4_fft_shift.py  
+Description : Centrer basses fréquences. Pourquoi : Meilleure visualisation. Comment : Après DFT, créer new_F, copier quadrants: new[0:H//2,0:W//2] = F[H//2:,W//2:], etc. (4 copies). Utiliser résultat DFT.
+
+TP4 - Filtrage passe-bas fréquentiel  
+Fichier : tp4_lowpass_freq.py  
+Description : Supprimer hautes fréquences (bruit). Pourquoi : Lissage spectral. Comment : DFT, shift, for u,v: if sqrt((u-H//2)**2 + (v-W//2)**2) > rayon: F[u,v]=0 (idéal) ou * gauss. Puis IFFT (IDFT2D). Utiliser inputs/img1.png.
+
+TP4 - Filtrage passe-haut fréquentiel  
+Fichier : tp4_highpass_freq.py  
+Description : Garder détails. Pourquoi : Détection edges. Comment : Similaire, set 0 si distance < rayon. Utiliser inputs/img1.png.
+
+TP4 - Filtrage notch (réduction bruit spécifique)  
+Fichier : tp4_notch_filter.py  
+Description : Enlever pics périodiques. Pourquoi : Supprime bruit structuré. Comment : Identifier pics manuellement ou seuil sur mag, set F[u,v]=0 et symétrique. IFFT. Utiliser image avec bruit si possible.
+
+TP4 - Rehaussement de contraste par passe-haut  
+Fichier : tp4_enhance_highpass.py  
+Description : Ajouter détails à original. Pourquoi : Améliore visibilité. Comment : Filtrée highpass + original, boucler I'[i,j] = min(I + high[i,j], 255). Option post-égalisation. Utiliser inputs/img1.png.
+
+## Chapitre 5 - Contours1
+
+Contexte : Contour comme variation brusque d'intensité. Utilise dérivées (gradient, Laplacien). Opérateurs Sobel, Prewitt, Roberts, Laplacian. Post-traitement seuil, non-max, hystérésis pour Canny-like.
+
+TP5 - Calcul du gradient par différences finies  
+Fichier : tp5_gradient_finite_diff.py  
+Description : Mesurer variations. Pourquoi : Base pour détection contours. Comment : dx[i,j] = I[i+1,j] - I[i-1,j], dy = I[i,j+1] - I[i,j-1], mag = sqrt(dx**2 + dy**2), normaliser mag / max(mag) * 255. Boucles, bords zéro. Utiliser inputs/img1.png.
+
+TP5 - Opérateur Sobel  
+Fichier : tp5_sobel.py  
+Description : Gradient pondéré. Pourquoi : Moins sensible bruit. Comment : Kernels dx=[[ -1,-2,-1],[0,0,0],[1,2,1]], dy=transpose, appliquer convolve (de ch3), mag=sqrt(dx**2 + dy**2). Utiliser inputs/img1.png.
+
+TP5 - Opérateur Prewitt  
+Fichier : tp5_prewitt.py  
+Description : Similaire Sobel. Pourquoi : Alternative simple. Comment : Kernels dx=[[ -1,-1,-1],[0,0,0],[1,1,1]], etc. Convolve, mag. Utiliser inputs/img1.png.
+
+TP5 - Opérateur Roberts  
+Fichier : tp5_roberts.py  
+Description : Diagonales. Pourquoi : Détecte edges 45°. Comment : Kernels 2x2 dx=[[1,0],[0,-1]], dy=[[0,1],[-1,0]], convolve, mag. Utiliser inputs/img1.png.
+
+TP5 - Laplacien pour détection de contours  
+Fichier : tp5_laplacian.py  
+Description : Seconde dérivée. Pourquoi : Trouve zeros-crossings pour edges. Comment : Kernel=[[0,1,0],[1,-4,1],[0,1,0]], convolve, abs(result), normaliser. Formula ∇²I = ∂²I/∂x² + ∂²I/∂y². Utiliser inputs/img1.png.
+
+TP5 - Seuillage sur image de gradients  
+Fichier : tp5_edge_threshold.py  
+Description : Binariser contours. Pourquoi : Sépare edges forts. Comment : Après mag (ex. Sobel), boucler if mag[i,j] > seuil: 255 else 0. Seuil fixe ex. 100. Utiliser inputs/img1.png.
+
+TP5 - Suppression de non-maxima (pour Canny-like)  
+Fichier : tp5_non_max_suppression.py  
+Description : Affiner à 1 pixel. Pourquoi : Évite contours épais. Comment : Calculer direction theta = atan2(dy,dx), pour chaque pixel, interpoler voisins dans theta (0,45,90,135°), if mag non max: 0. Boucles complexes. Utiliser inputs/img1.png.
+
+TP5 - Hystérésis pour liaison de contours  
+Fichier : tp5_hysteresis.py  
+Description : Connecter edges. Pourquoi : Récupère faibles connectés. Comment : Deux seuils high/low, marquer >high comme forts, utiliser stack: from forts, add voisins >low. Recursion ou queue. Appliquer après non-max. Utiliser inputs/img1.png.
+
+## Chapitre 6 - Segmentation
+
+Contexte : Diviser en régions objets. Méthodes seuil (Otsu avec formules), croissance régions, k-means (étapes: init, assign, update), watershed, split-merge (division recursive si non homogène).
+
+TP6 - Seuillage simple  
+Fichier : tp6_simple_threshold.py  
+Description : Binariser. Pourquoi : Segmentation basique. Comment : Boucler if I[i,j] > seuil: 255 else 0. Seuil param. Utiliser inputs/img1.png.
+
+TP6 - Méthode d'Otsu pour seuil automatique  
+Fichier : tp6_otsu_threshold.py  
+Description : Seuil optimal via variance. Pourquoi : Automatique bimodal. Comment : Hist, for T=0 to 255: P1=sum hist[0:T]/total, mu1=weighted sum 0:T / P1, pareil P2/mu2, sigma_w = P1*var1 + P2*var2, choose min sigma_w. Puis seuiller. Formulas from page18. Utiliser inputs/img1.png.
+
+TP6 - Croissance de régions  
+Fichier : tp6_region_growing.py  
+Description : Grouper pixels similaires from seed. Pourquoi : Basé homogénéité. Comment : Seed manuel, queue.append(seed), mean = I[seed], while queue: pop pixel, for 4/8 voisins: if abs(I[voisin]-mean) < tol and not visited: add, update mean. Masque binaire. Utiliser inputs/img2.png.
+
+TP6 - Étiquetage des composantes connexes  
+Fichier : tp6_connected_components_labeling.py  
+Description : Label régions binaires. Pourquoi : Identifier objets. Comment : Deux passes: première assign labels provisoires (check haut/gauche, new label or min), table equivalences union-find, seconde reassign min label. 4/8 connex. Utiliser inputs/img1.png seuillée.
+
+TP6 - Algorithme watershed basique  
+Fichier : tp6_watershed.py  
+Description : Segmentation via inondation. Pourquoi : Gère contours. Comment : Sur gradient (de ch5), sort pixels by intensity, priority queue minima, flood from low, assign labels to basins, handle plateaus. Need img3.png for gradient if separate. Utiliser inputs/img1.png.
+
+TP6 - Segmentation par k-means (couleur)  
+Fichier : tp6_kmeans_segmentation.py  
+Description : Cluster pixels RGB. Pourquoi : Grouper par similarité. Comment : Pixels as [R,G,B] points, init K centers random, loop: assign each pixel to closest (euclid dist, boucles), update centers=mean of assigned, until convergence (<epsilon change). Assign mean color. K=3. Utiliser inputs/img2.png.
+
+## Chapitre 7 - Images binaires
+
+Contexte : Techniques pour binaires (post-segmentation). Étiquetage contours avec 8-connex (check 4 voisins), morpho avec SE (erosion: all under SE=1, dilation: any=1).
+
+TP7 - Étiquetage des composantes connexes (algorithme en deux passes)  
+Fichier : tp7_connected_components_labeling.py  
+Description : Label objets binaires. Pourquoi : Compter/analyser composantes. Comment : Comme TP6, mais param 4/8 connex. Utiliser union-find for equiv. Utiliser inputs/img1.png binaire.
+
+TP7 - Codage de Freeman pour contours  
+Fichier : tp7_freeman_chain_code.py  
+Description : Encoder bordure. Pourquoi : Compacte contours. Comment : Trouver start pixel (scan), follow clockwise 8-dir (0=right,1=up-right,...), list dirs changes. Boucles trace sans lib. Assume single object. Utiliser inputs/img2.png binaire.
+
+TP7 - Érosion morphologique  
+Fichier : tp7_morph_erosion.py  
+Description : Rétrécir objets. Pourquoi : Enlever bruit petit. Comment : SE ex. 3x3 square, for each obj pixel, if all under SE==255: keep else 0. Boucles imbriquées, pad. Utiliser inputs/img1.png.
+
+TP7 - Dilatation morphologique  
+Fichier : tp7_morph_dilation.py  
+Description : Agrandir objets. Pourquoi : Combler trous. Comment : For each pixel, if any under SE==255: 255 else 0. Boucles. Utiliser inputs/img1.png.
+
+TP7 - Ouverture morphologique  
+Fichier : tp7_morph_opening.py  
+Description : Érosion puis dilatation. Pourquoi : Enleve bruit sans rétrécir. Comment : Appel erosion then dilation. Utiliser inputs/img1.png.
+
+TP7 - Fermeture morphologique  
+Fichier : tp7_morph_closing.py  
+Description : Dilatation puis érosion. Pourquoi : Comble trous sans agrandir. Comment : Appel dilation then erosion. Utiliser inputs/img1.png.
+
+TP7 - Gradient morphologique  
+Fichier : tp7_morph_gradient.py  
+Description : Dilatation - érosion. Pourquoi : Extrait contours. Comment : Boucler I_grad = dil[i,j] - ero[i,j], clip 0-255. Utiliser inputs/img1.png.
+
+les dossiers de chaque chapitres doivent etre creer pour ses TPS , par exemple Chap7/tp7_morph_gradient.py....ect ainsi de suite.
+
+les images de sorties doivent etre dans un dossier outputs dediee au TP en question (un dossier output par dossier de chapitres)
+
+
+a la fin le readme doit etre ecris en anglais et simplement en indiquant comment c'est fait , comment c'est range et en decrivant chque fichier et comment il marche.
+
+l'auteur c'est "Donfack pascal" pour le cours de traitement d'images.
+et bien faire les choses
+
+et au debut de chaque fichier python decrire brirevement dans une docstring ce qu'il fait .. brievement et eviter les commentaires sauf si absolumeen nt necessaire 
