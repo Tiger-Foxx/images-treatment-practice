@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap4/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -14,40 +14,40 @@ if not os.path.exists(output_dir):
 def dft1d(signal):
     N = len(signal)
     F = np.zeros(N, dtype=complex)
-    # Manual DFT 1D
+    
     for u in range(N):
         for k in range(N):
             F[u] += signal[k] * np.exp(-2j * np.pi * u * k / N)
     return F
 
-# Load image
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 
-# Use a small patch to keep computation time reasonable (64x64)
+
 patch = img_array[:64, :64]
 H, W = patch.shape
 
 print(f"Computing 2D DFT on {H}x{W} patch. This will take a moment...")
 
-# DFT on rows
+
 dft_rows = np.zeros((H, W), dtype=complex)
 for i in range(H):
     dft_rows[i, :] = dft1d(patch[i, :])
 
-# DFT on columns
+
 dft_2d = np.zeros((H, W), dtype=complex)
 for j in range(W):
     dft_2d[:, j] = dft1d(dft_rows[:, j])
 
-# Log magnitude for visualization
+
 mag = np.log(1 + np.abs(dft_2d))
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp4_dft_2d.png')
 plt.imsave(output_path, mag, cmap='gray')
 
-# Visualization
+
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)

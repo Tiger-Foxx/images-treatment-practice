@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap4/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -27,23 +27,23 @@ def idft1d(F):
             f[k] += F[u] * np.exp(2j * np.pi * u * k / N)
     return f / N
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 
-# Small patch for computation efficiency
+
 patch = img_array[:64, :64]
 H, W = patch.shape
 
 print("Applying Notch Filter... please wait.")
 
-# 1. 2D DFT
+
 temp = np.zeros((H, W), dtype=complex)
 for i in range(H): temp[i, :] = dft1d(patch[i, :])
 F_2d = np.zeros((H, W), dtype=complex)
 for j in range(W): F_2d[:, j] = dft1d(temp[:, j])
 
-# 2. Shift and apply Notch Filter
+
 h_mid, w_mid = H // 2, W // 2
 shifted = np.zeros((H, W), dtype=complex)
 shifted[:h_mid, :w_mid] = F_2d[h_mid:, w_mid:]
@@ -51,7 +51,7 @@ shifted[:h_mid, w_mid:] = F_2d[h_mid:, :w_mid]
 shifted[h_mid:, :w_mid] = F_2d[:h_mid, w_mid:]
 shifted[h_mid:, w_mid:] = F_2d[:h_mid, :w_mid]
 
-# Define notches (symmetric points around center)
+
 notches = [(h_mid + 10, w_mid + 10), (h_mid - 10, w_mid - 10)]
 rayon = 3
 notch_shifted = shifted.copy()
@@ -61,7 +61,7 @@ for u in range(H):
             if np.sqrt((u - nu)**2 + (v - nv)**2) < rayon:
                 notch_shifted[u, v] = 0
 
-# 3. Inverse shift and 2D IDFT
+
 inv_shifted = np.zeros((H, W), dtype=complex)
 inv_shifted[h_mid:, w_mid:] = notch_shifted[:h_mid, :w_mid]
 inv_shifted[h_mid:, :w_mid] = notch_shifted[:h_mid, w_mid:]
@@ -76,11 +76,11 @@ for j in range(W): result_img[:, j] = idft1d(temp_inv[:, j])
 result_abs = np.abs(result_img)
 result_uint8 = np.clip(result_abs, 0, 255).astype(np.uint8)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp4_notch_filter.png')
 Image.fromarray(result_uint8).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

@@ -6,12 +6,12 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap6/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image
+
 input_image = 'inputs/img1.png'
 if not os.path.exists(input_image):
     input_image = 'inputs/img2.png'
@@ -20,7 +20,7 @@ img = Image.open(input_image).convert('L')
 img_array = np.array(img).astype(np.float32)
 H, W = img_array.shape
 
-# 1. Compute Gradient Magnitude (manual finite differences)
+
 gradient = np.zeros((H, W), dtype=np.float32)
 for i in range(1, H-1):
     for j in range(1, W-1):
@@ -28,7 +28,7 @@ for i in range(1, H-1):
         dy = img_array[i, j+1] - img_array[i, j-1]
         gradient[i, j] = np.sqrt(dx**2 + dy**2)
 
-# 2. Simplified Watershed: sort pixels by gradient and label
+
 pixels = []
 for i in range(H):
     for j in range(W):
@@ -41,7 +41,7 @@ next_label = 1
 print("Applying simplified Watershed... this may take a moment.")
 
 for _, i, j in pixels:
-    # Check neighbors for existing labels
+    
     found_label = 0
     for di in [-1, 0, 1]:
         for dj in [-1, 0, 1]:
@@ -57,7 +57,7 @@ for _, i, j in pixels:
         labels[i, j] = next_label
         next_label += 1
 
-# 3. Coloring the regions
+
 colored = np.zeros((H, W, 3), dtype=np.uint8)
 np.random.seed(42)
 colors = np.random.randint(0, 255, size=(next_label + 1, 3), dtype=np.uint8)
@@ -65,11 +65,11 @@ for i in range(H):
     for j in range(W):
         colored[i, j] = colors[labels[i, j]]
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp6_watershed.png')
 Image.fromarray(colored).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

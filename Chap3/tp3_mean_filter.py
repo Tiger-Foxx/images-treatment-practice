@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap3/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,23 +26,23 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 
-# Parameters
+
 N = 5
 kernel = np.ones((N, N)) / (N * N)
 
-# Apply filter
+
 result = convolve(img_array, kernel)
 result_uint8 = np.clip(result, 0, 255).astype(np.uint8)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp3_mean_filter.png')
 Image.fromarray(result_uint8).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(10, 5))
 
 plt.subplot(1, 2, 1)

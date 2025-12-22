@@ -6,26 +6,26 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap2/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# Manual histogram calculation
+
 hist = np.zeros(256, dtype=int)
 for i in range(H):
     for j in range(W):
         hist[img_array[i, j]] += 1
 
-# Save histogram plot
+
 output_path = os.path.join(output_dir, 'output_tp2_histogram.png')
 
-# Visualization
+
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)

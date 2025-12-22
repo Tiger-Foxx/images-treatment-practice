@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap4/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -19,45 +19,45 @@ def dft1d(signal):
             F[u] += signal[k] * np.exp(-2j * np.pi * u * k / N)
     return F
 
-# Load image and force grayscale to ensure 2D shape
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 
-# Use a small patch to keep computation time reasonable
+
 patch = img_array[:64, :64]
 H, W = patch.shape
 
 print("Computing 2D DFT and shifting... please wait.")
 
-# DFT on rows
+
 dft_rows = np.zeros((H, W), dtype=complex)
 for i in range(H):
     dft_rows[i, :] = dft1d(patch[i, :])
 
-# DFT on columns
+
 dft_2d = np.zeros((H, W), dtype=complex)
 for j in range(W):
     dft_2d[:, j] = dft1d(dft_rows[:, j])
 
-# FFT Shift (Manual swapping of quadrants)
+
 shifted = np.zeros((H, W), dtype=complex)
 h_mid, w_mid = H // 2, W // 2
 
-# Quadrants: Top-Left maps to Bottom-Right, etc.
+
 shifted[:h_mid, :w_mid] = dft_2d[h_mid:, w_mid:]
 shifted[:h_mid, w_mid:] = dft_2d[h_mid:, :w_mid]
 shifted[h_mid:, :w_mid] = dft_2d[:h_mid, w_mid:]
 shifted[h_mid:, w_mid:] = dft_2d[:h_mid, :w_mid]
 
-# Log magnitudes for visualization
+
 mag_orig = np.log(1 + np.abs(dft_2d))
 mag_shifted = np.log(1 + np.abs(shifted))
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp4_fft_shift.png')
 plt.imsave(output_path, mag_shifted, cmap='gray')
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

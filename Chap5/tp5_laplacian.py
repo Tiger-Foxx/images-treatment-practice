@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap5/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,11 +26,11 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 
-# Laplacian kernel (4-neighbors)
+
 kernel = np.array([
     [0,  1, 0],
     [1, -4, 1],
@@ -39,19 +39,19 @@ kernel = np.array([
 
 lap = convolve(img_array, kernel)
 
-# Abstract Laplacian results often show edges as zero crossings.
-# For visualization, we keep the absolute value or shift.
+
+
 lap_abs = np.abs(lap)
 if lap_abs.max() > 0:
     lap_norm = (lap_abs / lap_abs.max() * 255).astype(np.uint8)
 else:
     lap_norm = lap_abs.astype(np.uint8)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp5_laplacian.png')
 Image.fromarray(lap_norm).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(10, 5))
 
 plt.subplot(1, 2, 1)

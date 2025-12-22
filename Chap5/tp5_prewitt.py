@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap5/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,31 +26,31 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 
-# Prewitt Kernels
-kx = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]) # Horizontal gradient
-ky = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]) # Vertical gradient
 
-# Apply convolution
+kx = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]) 
+ky = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]) 
+
+
 dx = convolve(img_array, kx)
 dy = convolve(img_array, ky)
 mag = np.sqrt(dx**2 + dy**2)
 
-# Normalization
+
 mag_max = mag.max()
 if mag_max > 0:
     mag_norm = (mag / mag_max * 255).astype(np.uint8)
 else:
     mag_norm = mag.astype(np.uint8)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp5_prewitt.png')
 Image.fromarray(mag_norm).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 10))
 
 plt.subplot(2, 2, 1)

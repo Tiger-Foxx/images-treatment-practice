@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap3/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,11 +26,11 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 
-# Gaussian kernel generation
+
 sigma = 1.0
 N = 5
 r = N // 2
@@ -40,15 +40,15 @@ for u in range(N):
         kernel[u, v] = (1 / (2 * np.pi * sigma**2)) * np.exp(- ((u - r)**2 + (v - r)**2) / (2 * sigma**2))
 kernel /= kernel.sum()
 
-# Apply filter
+
 result = convolve(img_array, kernel)
 result_uint8 = np.clip(result, 0, 255).astype(np.uint8)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp3_gaussian_filter.png')
 Image.fromarray(result_uint8).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(10, 5))
 
 plt.subplot(1, 2, 1)

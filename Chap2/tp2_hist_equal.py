@@ -6,23 +6,23 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap2/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# 1. Compute Histogram (manual)
+
 hist = np.zeros(256, dtype=int)
 for i in range(H):
     for j in range(W):
         hist[img_array[i, j]] += 1
 
-# 2. Compute normalized CDF (manual)
+
 total = H * W
 hn = hist / total
 CDF = np.zeros(256)
@@ -30,17 +30,17 @@ CDF[0] = hn[0]
 for k in range(1, 256):
     CDF[k] = CDF[k-1] + hn[k]
 
-# 3. Apply equalization (manual)
+
 equalized = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
     for j in range(W):
         equalized[i, j] = int(CDF[img_array[i, j]] * 255)
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp2_hist_equal.png')
 Image.fromarray(equalized).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(12, 10))
 
 plt.subplot(2, 2, 1)

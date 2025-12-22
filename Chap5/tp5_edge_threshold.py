@@ -6,7 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap5/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,21 +26,21 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 H, W = img_array.shape
 
-# Sobel Kernels
+
 kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
 ky = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
 
-# Compute gradients
+
 dx = convolve(img_array, kx)
 dy = convolve(img_array, ky)
 mag = np.sqrt(dx**2 + dy**2)
 
-# Global thresholding
+
 seuil = 100
 edges = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
@@ -50,11 +50,11 @@ for i in range(H):
         else:
             edges[i, j] = 0
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp5_edge_threshold.png')
 Image.fromarray(edges).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

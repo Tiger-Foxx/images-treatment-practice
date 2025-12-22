@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from collections import deque
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap5/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -27,21 +27,21 @@ def convolve(img, kernel):
             result[i, j] = sum_val
     return result
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img).astype(np.float32)
 H, W = img_array.shape
 
-# Sobel Kernels
+
 kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
 ky = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
 
-# Compute gradients
+
 dx = convolve(img_array, kx)
 dy = convolve(img_array, ky)
 mag = np.sqrt(dx**2 + dy**2)
 
-# Hysteresis Thresholding
+
 high_thresh = 100
 low_thresh = 40
 
@@ -49,13 +49,13 @@ edges = np.zeros((H, W), dtype=np.uint8)
 strong_i, strong_j = np.where(mag >= high_thresh)
 weak_i, weak_j = np.where((mag >= low_thresh) & (mag < high_thresh))
 
-# Seed strong edges in queue
+
 queue = deque()
 for i, j in zip(strong_i, strong_j):
     edges[i, j] = 255
     queue.append((i, j))
 
-# Propagation: link weak edges connected to strong ones
+
 while queue:
     x, y = queue.popleft()
     for di in [-1, 0, 1]:
@@ -67,11 +67,11 @@ while queue:
                     edges[ni, nj] = 255
                     queue.append((ni, nj))
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp5_hysteresis.png')
 Image.fromarray(edges).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

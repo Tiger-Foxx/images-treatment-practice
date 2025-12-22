@@ -6,24 +6,24 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap7/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image and binarize
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# Manual binarization
+
 binary = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
     for j in range(W):
         if img_array[i, j] > 127:
             binary[i, j] = 1
 
-# Pass 1: Initial labeling and equivalence recording
+
 labels = np.zeros((H, W), dtype=int)
 next_label = 1
 parent = {}
@@ -54,7 +54,7 @@ for i in range(H):
                     if root_n != root_min:
                         parent[root_n] = root_min
 
-# Pass 2: Second scan
+
 for i in range(H):
     for j in range(W):
         if labels[i, j] > 0:
@@ -63,7 +63,7 @@ for i in range(H):
                 root = parent[root]
             labels[i, j] = root
 
-# Color the components
+
 max_label = 0 if not parent else max(labels.flatten())
 colored = np.zeros((H, W, 3), dtype=np.uint8)
 if max_label > 0:
@@ -73,11 +73,11 @@ if max_label > 0:
             if labels[i, j] > 0:
                 colored[i, j] = colors[labels[i, j]]
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp7_connected_components_labeling.png')
 Image.fromarray(colored).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)

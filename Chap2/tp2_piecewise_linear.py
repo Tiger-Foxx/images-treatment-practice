@@ -6,20 +6,20 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap2/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# Define control points for piecewise linear (x, y)
+
 points = [(0, 0), (50, 25), (128, 128), (200, 230), (255, 255)]
 
-# Pre-calculate LUT
+
 LUT = np.zeros(256, dtype=np.uint8)
 for k in range(256):
     for p in range(len(points)-1):
@@ -32,17 +32,17 @@ for k in range(256):
                 LUT[k] = y1
             break
 
-# Manual application
+
 transformed = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
     for j in range(W):
         transformed[i, j] = LUT[img_array[i, j]]
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp2_piecewise_linear.png')
 Image.fromarray(transformed).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 10))
 
 plt.subplot(2, 2, 1)

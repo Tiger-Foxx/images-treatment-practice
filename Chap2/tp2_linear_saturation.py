@@ -6,22 +6,22 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap2/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image as grayscale
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# Saturation parameters
+
 Smin = 50
 Smax = 200
 stretched = np.zeros((H, W), dtype=np.uint8)
 
-# Pre-calculate LUT for visualization and application
+
 lut = np.zeros(256, dtype=np.uint8)
 for k in range(256):
     if k < Smin:
@@ -29,19 +29,19 @@ for k in range(256):
     elif k > Smax:
         lut[k] = 255
     else:
-        # Scale between Smin and Smax to [0, 255]
+        
         lut[k] = int(255 * (k - Smin) / (Smax - Smin))
 
-# Manual application
+
 for i in range(H):
     for j in range(W):
         stretched[i, j] = lut[img_array[i, j]]
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp2_linear_saturation.png')
 Image.fromarray(stretched).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 10))
 
 plt.subplot(2, 2, 1)

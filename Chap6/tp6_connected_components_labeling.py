@@ -6,24 +6,24 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
-# Create outputs directory if it doesn't exist
+
 output_dir = 'Chap6/outputs'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Load image and binarize
+
 img = Image.open('inputs/img1.png').convert('L')
 img_array = np.array(img)
 H, W = img_array.shape
 
-# Manual binarization
+
 binary = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
     for j in range(W):
         if img_array[i, j] > 127:
             binary[i, j] = 1
 
-# Pass 1: Initial labeling and equivalence recording
+
 labels = np.zeros((H, W), dtype=int)
 next_label = 1
 parent = {}
@@ -31,7 +31,7 @@ parent = {}
 for i in range(H):
     for j in range(W):
         if binary[i, j] == 1:
-            # Check neighbors (top and left)
+            
             neighbors = []
             if i > 0 and labels[i-1, j] > 0:
                 neighbors.append(labels[i-1, j])
@@ -46,7 +46,7 @@ for i in range(H):
                 min_label = min(neighbors)
                 labels[i, j] = min_label
                 for n in neighbors:
-                    # Union operation in Disjoint Set
+                    
                     root_n = n
                     while parent[root_n] != root_n:
                         root_n = parent[root_n]
@@ -56,7 +56,7 @@ for i in range(H):
                     if root_n != root_min:
                         parent[root_n] = root_min
 
-# Pass 2: Second scan to resolve equivalences
+
 for i in range(H):
     for j in range(W):
         if labels[i, j] > 0:
@@ -65,22 +65,22 @@ for i in range(H):
                 root = parent[root]
             labels[i, j] = root
 
-# Color the components
+
 max_label = 0 if not parent else max(labels.flatten())
 colored = np.zeros((H, W, 3), dtype=np.uint8)
 if max_label > 0:
-    # Deterministic color generation per label
+    
     colors = np.random.RandomState(42).randint(0, 255, size=(max_label + 1, 3), dtype=np.uint8)
     for i in range(H):
         for j in range(W):
             if labels[i, j] > 0:
                 colored[i, j] = colors[labels[i, j]]
 
-# Save result
+
 output_path = os.path.join(output_dir, 'output_tp6_connected_components_labeling.png')
 Image.fromarray(colored).save(output_path)
 
-# Visualization
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)
